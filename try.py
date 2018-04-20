@@ -74,7 +74,7 @@ def normalize(f , lammatize= False):
     f = [re.subn(" [0-9]+ "," DD ", x)[0].strip() for x in f]
     f = [re.subn("<\S*>","", x)[0].strip() for x in f]    
     """
-    tokenized_sents = [f(i) for i in example]
+    tokenized_sents = [word_tokenize(i) for i in f]
     if not lammatize:
         stemmer = PorterStemmer()
         for i in range (0, len(tokenized_sents)):
@@ -85,7 +85,7 @@ def normalize(f , lammatize= False):
         for i in range (0, len(tokenized_sents)):
             for j in range (0,len(tokenized_sents[i])):
                 tokenized_sents[i][j] = lammatizer.lemmatize(tokenized_sents[i][j])    
-    for i in tokenized_sents:
+    for i in range (0, len(tokenized_sents)):
         f[i] = " ".join(tokenized_sents[i])
     return f
 
@@ -105,14 +105,14 @@ def ngrams(data, labels, ntrain, min_ngrams=1, max_ngrams=1, no_of_features=500,
         analyzer_type = 'char'
         
     if binary:
-        vectorizer = CountVectorizer(ngram_range = (min_n , max_n), binary =True)
+        vectorizer = CountVectorizer(ngram_range = (min_ngrams , max_ngrams), binary =True)
     elif stopwords:
-        vectorizer = TfidfVectorizer(ngram_range = (min_n , max_n),stop_words='english',analyzer=analyzer_type,sublinear_tf=True)
+        vectorizer = TfidfVectorizer(ngram_range = (min_ngrams , max_ngrams),stop_words='english',analyzer=analyzer_type,sublinear_tf=True)
     else:
-        vectorizer = TfidfVectorizer(ngram_range = (min_n , max_n),sublinear_tf=True,analyzer=analyzer_type)
+        vectorizer = TfidfVectorizer(ngram_range = (min_ngrams , max_ngrams),sublinear_tf=True,analyzer=analyzer_type)
 
     if verbose:
-        print ("extracting ngrams... where n is [%d,%d]" % (mn,mx))
+        print ("extracting ngrams... where n is [%d,%d]" % (no_of_features,max_ngrams))
     
     X_train = vectorizer.fit_transform(ftrain)
     X_test = vectorizer.transform(ftest)
@@ -122,7 +122,7 @@ def ngrams(data, labels, ntrain, min_ngrams=1, max_ngrams=1, no_of_features=500,
 
     y = array(y_train)    
     
-    numFts = nm
+    numFts = no_of_features
     if numFts < X_train.shape[1]:
         t0 = time()
         ch2 = SelectKBest(chi2, k=numFts)
@@ -137,7 +137,7 @@ def ngrams(data, labels, ntrain, min_ngrams=1, max_ngrams=1, no_of_features=500,
 
 def skipGrams(data, labels, ntrain,nm=500,min_ngrams=1, max_ngrams=1, no_of_features=500, do_normalization = False, verbose = True):
     f = data
-    if donorm:
+    if do_normalization:
         f = normalize(f)
     
     ftrain = f[:ntrain]
@@ -146,7 +146,7 @@ def skipGrams(data, labels, ntrain,nm=500,min_ngrams=1, max_ngrams=1, no_of_feat
     t0 = time()
     skipper = functools.partial(skipgrams, n=2, k=3)
     
-    vectorizer = TfidfVectorizer(sublinear_tf=True,analyzer=analyzer_type)
+    vectorizer = TfidfVectorizer(sublinear_tf=True,analyzer=skipper)
     
     X_train = vectorizer.fit_transform(ftrain)
     X_test = vectorizer.transform(ftest)
@@ -181,7 +181,7 @@ def specialCases(data, labels, ntrain, verbose = True):
             fts = fts + " " + w[0]        
         f.append(fts)
     
-    X_trn, y_trn, X_tst = ngrams(f, labels, ntrain, 1, 1, 100, donorm = True, verbose = verbose)
+    X_trn, y_trn, X_tst = ngrams(f, labels, ntrain, 1, 1, 100, do_normalization = True, verbose = verbose)
     return X_trn, y_trn, X_tst
 
 
@@ -231,11 +231,14 @@ def run(verbose = True):
     test_data = [x[2] for x in test_data] 
     
     data = train + test_data
-    print(data)
+
     n = len(data)
     ntrain = len(train)
+    X_train7, y_train, X_test7 = specialCases(data, labels, ntrain, verbose = verbose)
+    
 """
     X_train1, y_train, X_test1 = ngrams(data, labels, ntrain, 1, 1, 2000, do_normalization = True, verbose = verbose)
+   
     X_train2, y_train, X_test2 = ngrams(data, labels, ntrain, 2, 2, 4000, do_normalization = True, verbose = verbose)
     X_train3, y_train, X_test3 = ngrams(data, labels, ntrain, 3, 3, 100,  do_normalization = True, verbose = verbose)    
     X_train4, y_train, X_test4 = ngrams(data, labels, ntrain, 4, 4, 1000, do_normalization = True, verbose = verbose, analyzer_char = True)    
