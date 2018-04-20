@@ -77,15 +77,14 @@ def normalize(f , lammatize= False):
     tokenized_sents = [f(i) for i in example]
     if not lammatize:
         stemmer = PorterStemmer()
-        for i in tokenized_sents:
-            for j in i:
-               tokenized_sents[i][j] = stemmer.stem(tokenized_sents[][])
+        for i in range (0, len(tokenized_sents)):
+            for j in range (0,len(tokenized_sents[i])):
+                tokenized_sents[i][j] = stemmer.stem(tokenized_sents[i][j])
     else:
         lemmatizer = WordNetLemmatizer()
-        for i in tokenized_sents:
-        for j in i:
-           tokenized_sents[i][j] = stemmer.stem(tokenized_sents[][])
-       
+        for i in range (0, len(tokenized_sents)):
+            for j in range (0,len(tokenized_sents[i])):
+                tokenized_sents[i][j] = lammatizer.lemmatize(tokenized_sents[i][j])    
     for i in tokenized_sents:
         f[i] = " ".join(tokenized_sents[i])
     return f
@@ -147,7 +146,7 @@ def skipGrams(data, labels, ntrain,nm=500,min_ngrams=1, max_ngrams=1, no_of_feat
     t0 = time()
     skipper = functools.partial(skipgrams, n=2, k=3)
     
-    vectorizer = TfidfVectorizer(sublinear_tf=True,analyzer=analyzer_type,analyzer=skipper)
+    vectorizer = TfidfVectorizer(sublinear_tf=True,analyzer=analyzer_type)
     
     X_train = vectorizer.fit_transform(ftrain)
     X_test = vectorizer.transform(ftest)
@@ -165,7 +164,7 @@ def skipGrams(data, labels, ntrain,nm=500,min_ngrams=1, max_ngrams=1, no_of_feat
         X_test = ch2.transform(X_test)
         assert sp.issparse(X_train) 
     if verbose:
-        print "Extracting best features by a chi-squared test.. ", X_train.shape, X_test.shape    
+        print ("Extracting best features by a chi-squared test.. ", X_train.shape, X_test.shape) 
     return X_train, y, X_test
 
 
