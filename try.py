@@ -81,7 +81,7 @@ def normalize(f , lammatize= False):
             for j in range (0,len(tokenized_sents[i])):
                 tokenized_sents[i][j] = stemmer.stem(tokenized_sents[i][j])
     else:
-        lemmatizer = WordNetLemmatizer()
+        lammatizer = WordNetLemmatizer()
         for i in range (0, len(tokenized_sents)):
             for j in range (0,len(tokenized_sents[i])):
                 tokenized_sents[i][j] = lammatizer.lemmatize(tokenized_sents[i][j])    
