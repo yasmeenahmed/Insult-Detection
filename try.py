@@ -112,7 +112,7 @@ def ngrams(data, labels, ntrain, min_ngrams=1, max_ngrams=1, no_of_features=500,
         vectorizer = TfidfVectorizer(ngram_range = (min_ngrams , max_ngrams),sublinear_tf=True,analyzer=analyzer_type)
 
     if verbose:
-        print ("extracting ngrams... where n is [%d,%d]" % (no_of_features,max_ngrams))
+        print ("extracting ngrams... where n is [%d,%d]" % (max_ngrams,min_ngrams))
     
     X_train = vectorizer.fit_transform(ftrain)
     X_test = vectorizer.transform(ftest)
